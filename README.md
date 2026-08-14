@@ -89,6 +89,7 @@ Supports full-page capture, element capture, and optional cross-origin image pro
     selector: "body"
   });
 })();
+
 复制脚本后，打开任意网页，单击右键，选择检查
 [图片]
 切换到控制，在底部粘贴脚本，然后按回车即可。
