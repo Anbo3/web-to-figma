@@ -48,56 +48,6 @@ Supports full-page capture, element capture, and optional cross-origin image pro
 4. Click `Start Capture`
 5. Download the generated `figma-capture-*.json`
 
-## 使用方式二：脚本
-
-(async () => {
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-  // 1) 注入 capture.js
-  if (!window.figma?.captureForDesign) {
-    const r = await fetch("https://mcp.figma.com/mcp/html-to-design/capture.js");
-    const s = await r.text();
-    const el = document.createElement("script");
-    el.textContent = s;
-    document.head.appendChild(el);
-    await sleep(1200);
-  }
-
-  // 2) 触发懒加载：滚动到底再回顶
-  const step = Math.max(400, Math.floor(window.innerHeight * 0.8));
-  for (let y = 0; y < document.body.scrollHeight; y += step) {
-    window.scrollTo(0, y);
-    await sleep(180);
-  }
-  await sleep(600);
-  window.scrollTo(0, 0);
-
-  // 3) 等图片与字体
-  const imgs = Array.from(document.images || []);
-  await Promise.allSettled(
-    imgs.map(img => img.complete ? Promise.resolve() : new Promise(res => {
-      img.addEventListener("load", res, { once: true });
-      img.addEventListener("error", res, { once: true });
-      setTimeout(res, 4000);
-    }))
-  );
-  if (document.fonts?.ready) await Promise.race([document.fonts.ready, sleep(3000)]);
-  await sleep(500);
-
-  // 4) 复制模式抓取
-  return await window.figma.captureForDesign({
-    selector: "body"
-  });
-})();
-
-复制脚本后，打开任意网页，单击右键，选择检查
-[图片]
-
-切换到控制，在底部粘贴脚本，然后按回车即可。
-
-注：首次执行的时候，浏览器会让你手动输入“”允许粘贴“”的文本，输入后按回车，再粘贴脚本即可
-[图片]
-
 ## Cross-Origin Image Proxy Notes
 
 - When enabled, the extension fetches images through the background proxy.
